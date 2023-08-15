@@ -48,6 +48,7 @@ function userInput () { inquirer.prompt([
 
     function addEmployee(){
         console.log("addEmployee")
+        
         userInput()
     }
 
