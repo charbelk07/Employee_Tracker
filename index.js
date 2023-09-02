@@ -48,28 +48,50 @@ async function findAllEmployees() {
 }
 
 function addEmployee() {
-  // console.log("addEmployee")
-  // const newEmployee = async function () { inquirer.prompt([
+  // Use inquirer to gather employee information
   inquirer
     .prompt([
       {
-        name: "firstName",
+        name: "first_name",
         type: "input",
-        message: "Please add new employee First Name",
+        message: "Enter the employee's first name:",
       },
       {
-        name: "lastName",
+        name: "last_name",
         type: "input",
-        message: "Please add new employee Last Name",
+        message: "Enter the employee's last name:",
+      },
+      {
+        name: "role_id",
+        type: "input",
+        message: "Enter the employee's role ID:",
+      },
+      {
+        name: "manager_id",
+        type: "input",
+        message:
+          "Enter the employee's manager ID (if applicable, or leave empty):",
       },
     ])
-    .then((userResponse) => {
-      const sql = "INSERT INTO employee SET ?";
-      const params = {
-        first_name: `${userResponse.firstName}`,
-        last_name: `${userResponse.lastName}`,
-      };
-      const rows = connection.query(sql, params);
+    .then(async (employeeData) => {
+      // Perform the INSERT operation to add the employee to the database
+      const sql =
+        "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)";
+      const values = [
+        employeeData.first_name,
+        employeeData.last_name,
+        employeeData.role_id,
+        employeeData.manager_id || null, // Use null if manager_id is not provided
+      ];
+
+      try {
+        await connection.promise().query(sql, values);
+        console.log("Employee added successfully!");
+      } catch (error) {
+        console.error("Error adding employee:", error);
+      }
+
+      // Return to the main menu
       userInput();
     });
 }
