@@ -29,11 +29,11 @@ function userInput() {
         updateEmployee();
       } else if (userResponse.userChoice === "View All Roles") {
         viewRoles();
-      } else if (userResponse.userChoice === "add Role") {
+      } else if (userResponse.userChoice === "Add Role") {
         addRole();
       } else if (userResponse.userChoice === "View All Departments") {
         viewDeparment();
-      } else if (userResponse.userChoice === "Add All Departments") {
+      } else if (userResponse.userChoice === "Add a Department") {
         addDeparment();
       } else if (userResponse.userChoice === "Exit") {
         process.exit();
@@ -215,7 +215,7 @@ function viewDeparment() {
     });
 }
 
-function addDepartment() {
+function addDeparment() {
   // Use inquirer to gather department information
   inquirer
     .prompt([
