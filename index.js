@@ -31,6 +31,10 @@ function userInput() {
         viewRoles();
       } else if (userResponse.userChoice === "add Role") {
         addRole();
+      } else if (userResponse.userChoice === "View All Departments") {
+        viewDeparment();
+      } else if (userResponse.userChoice === "Add All Departments") {
+        addDeparment();
       } else if (userResponse.userChoice === "Exit") {
         process.exit();
       }
@@ -74,6 +78,10 @@ function addEmployee() {
       },
     ])
     .then(async (employeeData) => {
+      // Parse manager_id as an integer (or leave it as null if empty)
+      const managerId = employeeData.manager_id
+        ? parseInt(employeeData.manager_id)
+        : null;
       // Perform the INSERT operation to add the employee to the database
       const sql =
         "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)";
@@ -97,16 +105,139 @@ function addEmployee() {
 }
 
 function updateEmployee() {
-  console.log("updateEmployee");
-  userInput();
+  // Use inquirer to gather updated employee information
+  inquirer
+    .prompt([
+      {
+        name: "employee_id",
+        type: "input",
+        message: "Enter the ID of the employee you want to update:",
+      },
+      {
+        name: "new_role_id",
+        type: "input",
+        message: "Enter the new role ID for the employee:",
+      },
+    ])
+    .then(async (updateData) => {
+      // Perform the UPDATE operation to modify the employee's role
+      const sql = "UPDATE employee SET role_id = ? WHERE id = ?";
+      const values = [updateData.new_role_id, updateData.employee_id];
+
+      try {
+        const [result] = await connection.promise().query(sql, values);
+
+        if (result.affectedRows === 0) {
+          console.log("Employee not found. No changes made.");
+        } else {
+          console.log("Employee updated successfully!");
+        }
+      } catch (error) {
+        console.error("Error updating employee:", error);
+      }
+
+      // Return to the main menu
+      userInput();
+    });
 }
 
 function viewRoles() {
-  console.log("viewRoles");
-  userInput();
+  console.log("View All Roles");
+
+  // SQL query to select all roles
+  const sql = "SELECT * FROM role";
+
+  connection
+    .promise()
+    .query(sql)
+    .then(([rows]) => {
+      console.table(rows);
+      userInput();
+    })
+    .catch((error) => {
+      console.error("Error fetching roles:", error);
+      userInput();
+    });
 }
 
 function addRole() {
-  console.log("addRole");
-  userInput();
+  // Use inquirer to gather role information
+  inquirer
+    .prompt([
+      {
+        name: "title",
+        type: "input",
+        message: "Enter the title of the new role:",
+      },
+      {
+        name: "salary",
+        type: "input",
+        message: "Enter the salary for the new role:",
+      },
+      {
+        name: "department_id",
+        type: "input",
+        message: "Enter the department ID for the new role:",
+      },
+    ])
+    .then(async (roleData) => {
+      // Perform the INSERT operation to add the new role to the database
+      const sql =
+        "INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)";
+      const values = [roleData.title, roleData.salary, roleData.department_id];
+
+      try {
+        await connection.promise().query(sql, values);
+        console.log("Role added successfully!");
+      } catch (error) {
+        console.error("Error adding role:", error);
+      }
+
+      // Return to the main menu
+      userInput();
+    });
+}
+function viewDeparment() {
+  console.log("view Deparment");
+
+  //SQL Query to Select all Departments
+  const sql = "SELECT * FROM department";
+
+  connection
+    .promise()
+    .query(sql)
+    .then(([rows]) => {
+      console.table(rows);
+      userInput();
+    })
+    .catch((error) => {
+      console.error("Error fetching roles:", error);
+    });
+}
+
+function addDepartment() {
+  // Use inquirer to gather department information
+  inquirer
+    .prompt([
+      {
+        name: "name",
+        type: "input",
+        message: "Enter the name of the new department:",
+      },
+    ])
+    .then(async (departmentData) => {
+      // Perform the INSERT operation to add the new department to the database
+      const sql = "INSERT INTO department (name) VALUES (?)";
+      const values = [departmentData.name];
+
+      try {
+        await connection.promise().query(sql, values);
+        console.log("Department added successfully!");
+      } catch (error) {
+        console.error("Error adding department:", error);
+      }
+
+      // Return to the main menu
+      userInput();
+    });
 }
